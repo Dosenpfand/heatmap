@@ -24,7 +24,7 @@
     "fit-file-parser": "^6.1.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.4",
     "esbuild": "^0.28.2",
