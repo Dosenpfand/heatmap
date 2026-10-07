@@ -1,4 +1,4 @@
-// Runs entirely in the browser (Web Worker). Input: the Strava export .zip File. Output: data.bin ArrayBuffer.
+// Runs entirely in the browser (Web Worker). Input: the activity export .zip File. Output: data.bin ArrayBuffer.
 import FitParser from 'fit-file-parser';
 const TOL = 1.2; // meters
 
@@ -104,7 +104,7 @@ async function readEntry(file, e) {
 
 async function build(file, progress) {
   const entries = (await listZip(file)).filter(e => /(?:^|\/)activities\/[^/]+\.(?:gpx|gpx\.gz|fit|fit\.gz)$/i.test(e.name));
-  if (!entries.length) throw new Error('No activities/ folder with .gpx/.fit files found. Is this a Strava export zip?');
+  if (!entries.length) throw new Error('No activities/ folder with .gpx/.fit files found. Is this an activity export zip?');
   const types = [], tracks = [], pts = []; let total = 0, kept = 0;
   for (const [fi, e] of entries.entries()) {
     try {

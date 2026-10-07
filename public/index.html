@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Strava Heatmap</title>
+<title>Activity Heatmap</title>
 <style>
 :root{--bg:#0b0d12;--panel:#12151c;--line:#232836;--fg:#e6e8ee;--dim:#8b92a5;--acc:#ff6a1a}
 *{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
@@ -31,13 +31,13 @@ button.on{border-color:var(--acc);color:var(--acc)}button:disabled{opacity:.4;cu
 </style></head><body>
 <div id="app">
 <aside id="side">
-  <h1>STRAVA <b>HEATMAP</b></h1>
+  <h1>ACTIVITY <b>HEATMAP</b></h1>
   <div class="sub" id="count">loading…</div>
 
   <h2 style="margin-top:0;border:0;padding:0">Data</h2>
-  <div class="btns"><button id="upbtn">📂 Load Strava export (.zip)</button></div>
+  <div class="btns"><button id="upbtn">📂 Load export (.zip)</button></div>
   <input type="file" id="upfile" accept=".zip,application/zip" style="display:none">
-  <div class="hint">Need the file? <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer" style="color:var(--acc)">Request your Strava export</a>.</div>
+  <div class="hint">Need the file? <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer" style="color:var(--acc)">Request your export from Strava</a>. Not affiliated with Strava; "Strava" is a trademark of Strava, Inc.</div>
   <div class="hint" id="upstat"></div>
 
   <h2>Activities</h2>

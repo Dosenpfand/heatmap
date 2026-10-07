@@ -31,7 +31,7 @@ const my = lat => { const s = Math.sin(lat * Math.PI / 180); return 0.5 - Math.l
 /* ---------- colormaps ---------- */
 const CMAPS = {
   'Inferno fire': ['#000004', '#2a0b4d', '#7b1d6b', '#c8363f', '#f57d15', '#fbc92a', '#fcffa4'],
-  'Strava orange': ['#1a0500', '#6b1500', '#d33a00', '#fc4c02', '#ff9a3d', '#ffd9a0', '#ffffff'],
+  'Orange': ['#1a0500', '#6b1500', '#d33a00', '#fc4c02', '#ff9a3d', '#ffd9a0', '#ffffff'],
   'Ice': ['#00040f', '#0b2a6b', '#1d6fd6', '#2fc4f2', '#a8f0ff', '#ffffff'],
   'Neon': ['#0a0014', '#4b0fa8', '#d013c9', '#ff4d8d', '#ffc14d', '#ffffff'],
   'Viridis': ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725'],
