@@ -1,0 +1,7 @@
+public/app.js
+public/worker.js
+package-lock.json
+node_modules
+public/style.css
+test-results
+playwright-report

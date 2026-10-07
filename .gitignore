@@ -88,6 +88,7 @@ dist
 # Comment in the public line in if your project uses Gatsby and not Next.js
 # https://nextjs.org/blog/next-9-1#public-directory-support
 # public
+public/app.js
 public/worker.js
 
 # vuepress build output
@@ -148,3 +149,6 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+public/style.css
+test-results/
+playwright-report/

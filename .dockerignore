@@ -1,1 +1,5 @@
 node_modules
+public/app.js
+public/worker.js
+.git
+test
