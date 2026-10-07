@@ -2,14 +2,13 @@ import { ui, setStatus } from './dom.js';
 import { create2d, download, drawTitle, sleep } from './export-common.js';
 import { renderHeat } from './heat.js';
 import { tilesForView } from './lib/tiles.js';
-import { activeBase, background, exportHeatOptions, exportSize } from './settings.js';
+import { activeBase, background, exportHeatOptions, exportRegion, exportSize } from './settings.js';
 import { scaleOf, state, visibleTracks } from './state.js';
 import { drawTiles, loadTiles } from './tile-cache.js';
 
 /** Renders the selected area to a PNG and downloads it. */
 async function exportPng() {
-  const { sel } = state;
-  if (!sel) return;
+  const sel = exportRegion();
   ui.exbtn.disabled = true;
   try {
     const [PW, PH] = exportSize();
@@ -56,7 +55,7 @@ async function exportPng() {
     console.error(err);
     setStatus('Export failed: ' + (err instanceof Error ? err.message : err));
   }
-  ui.exbtn.disabled = !state.sel;
+  ui.exbtn.disabled = false;
 }
 
 export function initImageExport() {

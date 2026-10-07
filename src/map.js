@@ -67,6 +67,7 @@ function s2w(/** @type {number} */ x, /** @type {number} */ y) {
 }
 
 function draw() {
+  updateExportUI();
   const { w: W, h: H, dpr } = viewport;
   const base = activeBase();
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -171,11 +172,12 @@ function hit(/** @type {number} */ x, /** @type {number} */ y) {
 
 /** Enables/disables the export button and updates the selection hint. */
 export function updateExportUI() {
-  ui.exbtn.disabled = !state.sel;
+  ui.exbtn.disabled = false;
   const [w, h] = exportSize();
+  const info = `${w} × ${h} px (${((w * h) / 1e6).toFixed(1)} MP)`;
   ui.selhint.textContent = state.sel
-    ? `Selection → ${w} × ${h} px (${((w * h) / 1e6).toFixed(1)} MP)`
-    : 'Click “Select area”, then drag on the map. Drag inside to move, handles to resize. Hold Space to pan.';
+    ? `Selection → ${info}`
+    : `No selection: exports current view → ${info}. Click “Select area”, then drag on the map. Drag inside to move, handles to resize. Hold Space to pan.`;
 }
 
 function setMode(/** @type {'pan' | 'select'} */ m) {

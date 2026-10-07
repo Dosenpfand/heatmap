@@ -1,6 +1,6 @@
 import { ui } from './dom.js';
 import { exportSize as calcExportSize } from './lib/selection.js';
-import { state } from './state.js';
+import { scaleOf, state } from './state.js';
 
 /** @typedef {import('./heat.js').HeatOptions} HeatOptions */
 
@@ -38,4 +38,17 @@ export function exportHeatOptions() {
   return o;
 }
 
-export const exportSize = () => calcExportSize(state.sel, +ui.px.value);
+/** Export region in world units: the selection, or else the current viewport. */
+export function exportRegion() {
+  if (state.sel) return state.sel;
+  const { view, viewport } = state;
+  const S = scaleOf(view.z);
+  return {
+    x0: view.cx - viewport.w / 2 / S,
+    x1: view.cx + viewport.w / 2 / S,
+    y0: view.cy - viewport.h / 2 / S,
+    y1: view.cy + viewport.h / 2 / S,
+  };
+}
+
+export const exportSize = () => calcExportSize(exportRegion(), +ui.px.value);
