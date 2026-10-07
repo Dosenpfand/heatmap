@@ -1,6 +1,7 @@
 {
   "name": "heatmap",
   "version": "1.0.0",
+  "license": "MIT",
   "private": true,
   "description": "Browser-based heatmap generator for activity exports",
   "type": "module",
