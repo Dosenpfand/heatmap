@@ -684,6 +684,7 @@ addEventListener('drop', e => { e.preventDefault(); const f = e.dataTransfer.fil
 let uiReady = false;
 async function start() {
   if (!uiReady) { uiReady = true; setupUI(); } else refreshChips();
+  $('cfg').style.display = '';
   const l = $('loading'); if (l) l.remove();
 }
 (async () => {
@@ -691,6 +692,6 @@ async function start() {
   if (buf) { try { loadData(buf); return start(); } catch (e) {} }
   $('count').textContent = 'no data yet';
   $('loading').dataset.up = '1';
-  $('loadmsg').innerHTML = 'No data yet.<br><br><button class="p" id="upbtn2">Choose your Strava export .zip</button><br><br><span style="font-size:12px">or drop the file anywhere.<br>It is processed in your browser and never uploaded.</span><br><br><span style="font-size:12px">Don\'t have it yet? <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer" style="color:var(--acc)">Request your Strava export</a></span>';
+  $('loadmsg').innerHTML = 'No data yet.<br><br><button class="p" id="upbtn2">Choose your export .zip</button><br><br><span style="font-size:12px">or drop the file anywhere.<br>It is processed in your browser and never uploaded.</span><br><br><span style="font-size:12px">Don\'t have it yet? <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer" style="color:var(--acc)">Request your export from Strava</a><br>Not affiliated with Strava; &quot;Strava&quot; is a trademark of Strava, Inc.</span>';
   $('upbtn2').onclick = () => $('upfile').click();
 })();

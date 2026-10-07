@@ -40,6 +40,7 @@ button.on{border-color:var(--acc);color:var(--acc)}button:disabled{opacity:.4;cu
   <div class="hint">Need the file? <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer" style="color:var(--acc)">Request your export from Strava</a>. Not affiliated with Strava; "Strava" is a trademark of Strava, Inc.</div>
   <div class="hint" id="upstat"></div>
 
+  <div id="cfg" style="display:none">
   <h2>Activities</h2>
   <div class="chips" id="types"></div>
   <div class="chips" id="years" style="margin-top:8px"></div>
@@ -84,6 +85,7 @@ button.on{border-color:var(--acc);color:var(--acc)}button:disabled{opacity:.4;cu
   <div class="btns"><button class="p" id="vidbtn">Export video</button></div>
   <div class="hint">Recorded in real time in your browser (MP4 in Chrome, otherwise WebM).</div>
   <div id="status"></div>
+  </div>
 </aside>
 <main id="stage"><canvas id="view"></canvas><div id="loading"><div id="loadmsg">Loading activities…</div></div></main>
 </div>
