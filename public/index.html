@@ -1,131 +1,166 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Activity Heatmap</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Activity Heatmap</title>
-  <link rel="icon" href="data:," />
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <body>
+    <div id="app">
+      <aside id="side">
+        <h1>ACTIVITY <b>HEATMAP</b></h1>
+        <div class="sub" id="count">loading…</div>
 
-<body>
-  <div id="app">
-    <aside id="side">
-      <h1>ACTIVITY <b>HEATMAP</b></h1>
-      <div class="sub" id="count">loading…</div>
-
-      <h2 style="margin-top: 0; border: 0; padding: 0">Data</h2>
-      <div class="btns"><button id="upbtn">📂 Load export (.zip)</button></div>
-      <input type="file" id="upfile" accept=".zip,application/zip" style="display: none" />
-      <div class="hint">
-        Need the file?
-        <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer"
-          style="color: var(--acc)">Request your export from Strava</a>. Not affiliated with Strava; "Strava" is a
-        trademark of Strava, Inc.
-      </div>
-      <div class="hint" id="upstat"></div>
-
-      <div id="cfg" style="display: none">
-        <h2>Activities</h2>
-        <div class="chips" id="types"></div>
-        <div class="chips" id="years" style="margin-top: 8px"></div>
-
-        <h2>Look</h2>
-        <label class="row">Colors<select id="cmap" style="width: 150px"></select></label>
-        <div class="cm" id="cmprev"></div>
-        <label class="row">Line width<input type="range" id="width" min="0.4" max="6" step="0.1" value="1.3" /><span
-            class="v"></span></label>
-        <label class="row">Brightness<input type="range" id="bright" min="0.02" max="0.6" step="0.01"
-            value="0.16" /><span class="v"></span></label>
-        <label class="row">Glow<input type="range" id="glow" min="0" max="2" step="0.05" value="0.7" /><span
-            class="v"></span></label>
-        <label class="row">Glow radius<input type="range" id="grad" min="1" max="20" step="0.5" value="4" /><span
-            class="v"></span></label>
-        <label class="row">Light background<input type="checkbox" id="tlight" /></label>
-        <label class="row">Basemap<select id="base" style="width: 170px"></select></label>
-        <div id="tbox" style="display: none">
-          <input type="text" id="turl" placeholder="https://…/{z}/{x}/{y}{r}.png?key={key}" />
-          <label class="row" id="keyrow" style="display: none">API key<input type="text" id="tkey"
-              placeholder="your key" style="width: 190px" /></label>
-          <div class="hint">
-            Template placeholders: {z} {x} {y}, optional {s} {r} (retina) and {key}.
-          </div>
-        </div>
-        <label class="row">Basemap dim<input type="range" id="dim" min="0" max="1" step="0.05" value="0.55" /><span
-            class="v"></span></label>
-
-        <h2>Export</h2>
-        <div class="btns"><button id="selbtn">▭ Select area</button><button id="clrbtn">Clear</button></div>
-        <div class="hint" id="selhint">
-          Click “Select area”, then drag on the map. Drag inside to move, handles to resize. Hold Space to pan.
-        </div>
-        <label class="row">Aspect<select id="ratio" style="width: 150px">
-            <option value="0">Free</option>
-            <option value="1">1 : 1</option>
-            <option value="0.8">4 : 5</option>
-            <option value="1.5">3 : 2</option>
-            <option value="0.6667">2 : 3</option>
-            <option value="1.3333">4 : 3</option>
-            <option value="1.7778">16 : 9</option>
-            <option value="0.7071">A-series portrait</option>
-            <option value="1.4142">A-series landscape</option>
-          </select></label>
-        <label class="row">Long side<select id="px" style="width: 150px">
-            <option>2000</option>
-            <option>4000</option>
-            <option selected>6000</option>
-            <option>8000</option>
-            <option>10000</option>
-            <option>12000</option>
-          </select></label>
-        <label class="row"
-          title="Multiplies line width and glow radius in the export only. Lower = thinner, finer lines.">Export line
-          scale<input type="range" id="exscale" min="0.1" max="2" step="0.05" value="0.4" /><span
-            class="v"></span></label>
-        <label class="row">Title<input type="text" id="title" placeholder="optional" /></label>
-        <label class="row">Subtitle<input type="text" id="subtitle" placeholder="optional" /></label>
-        <label class="row">Include tiles<input type="checkbox" id="exbase" checked /></label>
-        <div class="btns"><button class="p" id="exbtn" disabled>Export PNG</button></div>
-        <h2>Animation</h2>
+        <h2 style="margin-top: 0; border: 0; padding: 0">Data</h2>
+        <div class="btns"><button id="upbtn">📂 Load export (.zip)</button></div>
+        <input type="file" id="upfile" accept=".zip,application/zip" style="display: none" />
         <div class="hint">
-          Places activities one after another in chronological order.
+          Need the file?
+          <a
+            href="https://www.strava.com/athlete/download_my_account"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--acc)"
+            >Request your export from Strava</a
+          >. Not affiliated with Strava; "Strava" is a trademark of Strava, Inc.
         </div>
-        <label class="row">Duration<input type="range" id="dur" min="5" max="120" step="1" value="20" /><input
-            type="number" id="durn" min="1" max="1800" step="1" value="20" style="width: 64px; flex: none" /><span
-            style="color: var(--dim)">s</span></label>
-        <label class="row">Frame rate<select id="fps" style="width: 150px">
-            <option>24</option>
-            <option selected>30</option>
-            <option>60</option>
-          </select></label>
-        <label class="row">Video long side<select id="vpx" style="width: 150px">
-            <option>1280</option>
-            <option selected>1920</option>
-            <option>2560</option>
-            <option>3840</option>
-          </select></label>
-        <label class="row">Date &amp; counter<input type="checkbox" id="adate" checked /></label>
-        <label class="row">Highlight newest<input type="checkbox" id="ahl" checked /></label>
-        <div class="btns"><button class="p" id="vidbtn">Export video</button></div>
-        <div id="status"></div>
-      </div>
-      <div class="hint" id="about">
-        <a href="https://github.com/Dosenpfand/heatmap" target="_blank" rel="noopener noreferrer"
-          style="color: var(--acc)">Source on GitHub</a>
-        ·
-        <a href="https://github.com/Dosenpfand/heatmap/blob/main/LICENSE" target="_blank" rel="noopener noreferrer"
-          style="color: var(--acc)">MIT License</a>
-      </div>
-    </aside>
-    <main id="stage">
-      <canvas id="view"></canvas>
-      <div id="loading">
-        <div id="loadmsg">Loading activities…</div>
-      </div>
-    </main>
-  </div>
-  <script type="module" src="app.js"></script>
-</body>
+        <div class="hint" id="upstat"></div>
 
+        <div id="cfg" style="display: none">
+          <h2>Activities</h2>
+          <div class="chips" id="types"></div>
+          <div class="chips" id="years" style="margin-top: 8px"></div>
+
+          <h2>Look</h2>
+          <label class="row">Colors<select id="cmap" style="width: 150px"></select></label>
+          <div class="cm" id="cmprev"></div>
+          <label class="row"
+            >Line width<input type="range" id="width" min="0.4" max="6" step="0.1" value="1.3" /><span class="v"></span
+          ></label>
+          <label class="row"
+            >Brightness<input type="range" id="bright" min="0.02" max="0.6" step="0.01" value="0.16" /><span
+              class="v"
+            ></span
+          ></label>
+          <label class="row"
+            >Glow<input type="range" id="glow" min="0" max="2" step="0.05" value="0.7" /><span class="v"></span
+          ></label>
+          <label class="row"
+            >Glow radius<input type="range" id="grad" min="1" max="20" step="0.5" value="4" /><span class="v"></span
+          ></label>
+          <label class="row">Light background<input type="checkbox" id="tlight" /></label>
+          <label class="row">Basemap<select id="base" style="width: 170px"></select></label>
+          <div id="tbox" style="display: none">
+            <input type="text" id="turl" placeholder="https://…/{z}/{x}/{y}{r}.png?key={key}" />
+            <label class="row" id="keyrow" style="display: none"
+              >API key<input type="text" id="tkey" placeholder="your key" style="width: 190px"
+            /></label>
+            <div class="hint">Template placeholders: {z} {x} {y}, optional {s} {r} (retina) and {key}.</div>
+          </div>
+          <label class="row"
+            >Basemap dim<input type="range" id="dim" min="0" max="1" step="0.05" value="0.55" /><span class="v"></span
+          ></label>
+
+          <h2>Export</h2>
+          <div class="btns"><button id="selbtn">▭ Select area</button><button id="clrbtn">Clear</button></div>
+          <div class="hint" id="selhint">
+            Click “Select area”, then drag on the map. Drag inside to move, handles to resize. Hold Space to pan.
+          </div>
+          <label class="row"
+            >Aspect<select id="ratio" style="width: 150px">
+              <option value="0">Free</option>
+              <option value="1">1 : 1</option>
+              <option value="0.8">4 : 5</option>
+              <option value="1.5">3 : 2</option>
+              <option value="0.6667">2 : 3</option>
+              <option value="1.3333">4 : 3</option>
+              <option value="1.7778">16 : 9</option>
+              <option value="0.7071">A-series portrait</option>
+              <option value="1.4142">A-series landscape</option>
+            </select></label
+          >
+          <label class="row"
+            >Long side<select id="px" style="width: 150px">
+              <option>2000</option>
+              <option>4000</option>
+              <option selected>6000</option>
+              <option>8000</option>
+              <option>10000</option>
+              <option>12000</option>
+            </select></label
+          >
+          <label
+            class="row"
+            title="Multiplies line width and glow radius in the export only. Lower = thinner, finer lines."
+            >Export line scale<input type="range" id="exscale" min="0.1" max="2" step="0.05" value="0.4" /><span
+              class="v"
+            ></span
+          ></label>
+          <label class="row">Title<input type="text" id="title" placeholder="optional" /></label>
+          <label class="row">Subtitle<input type="text" id="subtitle" placeholder="optional" /></label>
+          <label class="row">Include tiles<input type="checkbox" id="exbase" checked /></label>
+          <div class="btns"><button class="p" id="exbtn" disabled>Export PNG</button></div>
+          <h2>Animation</h2>
+          <div class="hint">Places activities one after another in chronological order.</div>
+          <label class="row"
+            >Duration<input type="range" id="dur" min="5" max="120" step="1" value="20" /><input
+              type="number"
+              id="durn"
+              min="1"
+              max="1800"
+              step="1"
+              value="20"
+              style="width: 64px; flex: none"
+            /><span style="color: var(--dim)">s</span></label
+          >
+          <label class="row"
+            >Frame rate<select id="fps" style="width: 150px">
+              <option>24</option>
+              <option selected>30</option>
+              <option>60</option>
+            </select></label
+          >
+          <label class="row"
+            >Video long side<select id="vpx" style="width: 150px">
+              <option>1280</option>
+              <option selected>1920</option>
+              <option>2560</option>
+              <option>3840</option>
+            </select></label
+          >
+          <label class="row">Date &amp; counter<input type="checkbox" id="adate" checked /></label>
+          <label class="row">Highlight newest<input type="checkbox" id="ahl" checked /></label>
+          <div class="btns"><button class="p" id="vidbtn">Export video</button></div>
+          <div id="status"></div>
+        </div>
+        <div class="hint" id="about">
+          <a
+            href="https://github.com/Dosenpfand/heatmap"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--acc)"
+            >Source on GitHub</a
+          >
+          ·
+          <a
+            href="https://github.com/Dosenpfand/heatmap/blob/main/LICENSE"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--acc)"
+            >MIT License</a
+          >
+        </div>
+      </aside>
+      <main id="stage">
+        <canvas id="view"></canvas>
+        <div id="loading">
+          <div id="loadmsg">Loading activities…</div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="app.js"></script>
+  </body>
 </html>
