@@ -1,5 +1,5 @@
 import { ui, setStatus } from './dom.js';
-import { create2d, download, drawTitle, sleep } from './export-common.js';
+import { create2d, download, drawAttribution, drawTitle, sleep } from './export-common.js';
 import { applyGlow, beginAccumulation, colorize, strokeTrack, worldMargin } from './heat.js';
 import { inRect } from './lib/tracks.js';
 import { tilesForView } from './lib/tiles.js';
@@ -128,6 +128,7 @@ async function exportVideo() {
       }
     }
     drawTitle(g, PW, PH);
+    if (useBase) drawAttribution(g, base, PW, PH);
     if (showDate && drawn) drawDateCounter(g, PW, PH, tracks[drawn - 1].ts, drawn, tracks.length);
     await sink.frame(out, f);
     setStatus(

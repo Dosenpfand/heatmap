@@ -1,4 +1,5 @@
 import { ui } from './dom.js';
+import { drawAttribution } from './export-common.js';
 import { renderHeat } from './heat.js';
 import { fitRatio } from './lib/selection.js';
 import { tilesForView } from './lib/tiles.js';
@@ -91,6 +92,7 @@ function draw() {
     const oy = (heat.cy - view.cy) * S + H / 2 - (H / 2) * r;
     ctx.drawImage(heat.canvas, ox, oy, W * r, H * r);
   }
+  if (base !== 'none') drawAttribution(ctx, base, W, H);
   drawSelection();
 }
 

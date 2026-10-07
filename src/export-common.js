@@ -1,4 +1,5 @@
 import { ui } from './dom.js';
+import { attributionFor } from './lib/tiles.js';
 import { isLight } from './settings.js';
 
 export const sleep = (/** @type {number} */ ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,4 +56,28 @@ export function drawTitle(
     g.fillText(title.toUpperCase(), m, y);
   }
   g.letterSpacing = '0px';
+}
+
+/** Draws the map attribution in the bottom-right corner of a PW x PH canvas. */
+export function drawAttribution(
+  /** @type {CanvasRenderingContext2D} */ g,
+  /** @type {string} */ template,
+  /** @type {number} */ PW,
+  /** @type {number} */ PH,
+) {
+  const fs = Math.max(10, Math.min(PW, PH) * 0.012);
+  const pad = fs * 0.4;
+  const text = attributionFor(template);
+  g.save();
+  g.font = `${fs}px system-ui, sans-serif`;
+  g.letterSpacing = '0px';
+  g.textAlign = 'right';
+  g.textBaseline = 'alphabetic';
+  const w = g.measureText(text).width;
+  const light = isLight();
+  g.fillStyle = light ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.55)';
+  g.fillRect(PW - w - pad * 2, PH - fs - pad * 1.5, w + pad * 2, fs + pad * 1.5);
+  g.fillStyle = light ? '#333' : '#ddd';
+  g.fillText(text, PW - pad, PH - pad);
+  g.restore();
 }

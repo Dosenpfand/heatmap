@@ -135,3 +135,33 @@ export function tilesForView(template, cx, cy, S, W, H, sharp) {
   }
   return list;
 }
+
+/** Known tile providers by host suffix. */
+const PROVIDERS = [
+  ['basemaps.cartocdn.com', '© CARTO'],
+  ['stadiamaps.com', '© Stadia Maps © Stamen Design © OpenMapTiles'],
+  ['maptiler.com', '© MapTiler'],
+  ['thunderforest.com', '© Thunderforest'],
+  ['jawg.io', '© Jawg Maps'],
+  ['arcgisonline.com', 'Imagery © Esri, Maxar, Earthstar Geographics'],
+];
+
+/**
+ * Attribution text for a tile URL template: the provider (if known, else its host) plus OpenStreetMap.
+ * @param {string} template
+ */
+export function attributionFor(template) {
+  let host = '';
+  try {
+    host = new URL(template.replace(/\{s\}/g, 'a')).hostname;
+  } catch {
+    // custom/invalid URL: OSM only
+  }
+  const known = PROVIDERS.find(([h]) => host === h || host.endsWith('.' + h));
+  const isOsm = host === 'tile.openstreetmap.org' || host.endsWith('.openstreetmap.org');
+  const parts = [];
+  if (known) parts.push(known[1]);
+  else if (host && !isOsm) parts.push(`Tiles: ${host}`);
+  parts.push('© OpenStreetMap contributors');
+  return parts.join(' | ');
+}
