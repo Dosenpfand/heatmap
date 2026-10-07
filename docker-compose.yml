@@ -1,0 +1,8 @@
+services:
+  heatmap:
+    build: .
+    ports:
+      - '8080:8080'
+    environment:
+      # Optional default basemap API key (hidden in the UI, overridable via the "API key" field).
+      DEFAULT_API_KEY: ${DEFAULT_API_KEY:-}

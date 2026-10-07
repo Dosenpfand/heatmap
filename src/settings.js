@@ -9,11 +9,16 @@ export const BG = { dark: '#0b0d12', light: '#efece4' };
 export const isLight = () => ui.tlight.checked;
 export const background = () => (isLight() ? BG.light : BG.dark);
 
+/** Server-provided default API key; never shown in the UI. Overridden by the key field. */
+let defaultKey = '';
+export const setDefaultKey = (/** @type {string} */ k) => (defaultKey = k);
+export const hasDefaultKey = () => !!defaultKey;
+
 /** The tile URL template with the API key filled in, or '' if a key is required but missing. */
 export function tileTemplate() {
   const url = ui.turl.value.trim();
   if (!url.includes('{key}')) return url;
-  const key = ui.tkey.value.trim();
+  const key = ui.tkey.value.trim() || defaultKey;
   return key ? url.replace(/\{key\}/g, encodeURIComponent(key)) : '';
 }
 

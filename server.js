@@ -26,6 +26,12 @@ export function resolvePath(urlPath) {
 }
 
 export const server = createServer(async (req, res) => {
+  if (req.url?.split('?')[0] === '/config.json') {
+    // Optional default basemap API key (env DEFAULT_API_KEY); used by the client when its key field is empty.
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.end(JSON.stringify({ defaultKey: process.env.DEFAULT_API_KEY ?? '' }));
+    return;
+  }
   const file = resolvePath(req.url ?? '/');
   const isFile =
     file &&

@@ -35,6 +35,11 @@ Docker:
 
     docker build -t heatmap . && docker run -p 8080:8080 heatmap
 
+or `docker compose up --build`.
+
+Set `DEFAULT_API_KEY` (e.g. `docker run -e DEFAULT_API_KEY=... `, or in the environment of `docker compose`/`npm start`) to
+provide a default basemap key. It is not shown in the UI; entering a key in the "API key" field overrides it.
+
 ## Disclaimer
 
 This project is not affiliated with, endorsed by, or sponsored by Strava. "Strava" is a trademark of Strava, Inc.

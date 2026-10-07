@@ -2,7 +2,7 @@ import { ui, valueLabel } from './dom.js';
 import { CMAPS, cmapGradient, makeLUT } from './lib/colormap.js';
 import { PRESETS } from './lib/tiles.js';
 import { requestDraw, resize, scheduleRender } from './map.js';
-import { tileTemplate } from './settings.js';
+import { hasDefaultKey, setDefaultKey, tileTemplate } from './settings.js';
 import { isVisible, state } from './state.js';
 
 const DEFAULT_CMAP = 'Inferno fire';
@@ -102,6 +102,7 @@ export function refreshChips() {
 function syncBaseUI() {
   ui.tbox.style.display = ui.base.value === 'none' ? 'none' : '';
   ui.keyrow.style.display = ui.turl.value.includes('{key}') ? '' : 'none';
+  ui.tkey.placeholder = hasDefaultKey() ? 'optional override' : 'your key';
   ui.status.textContent = ui.base.value !== 'none' && !tileTemplate() ? 'Enter an API key to show the basemap.' : '';
 }
 
@@ -117,6 +118,21 @@ function setupBasemap() {
   ui.tkey.value = prefs.get('tileKey');
   ui.turl.value = prefs.get('tileUrl');
   if (prefs.get('tileBase')) ui.base.value = prefs.get('tileBase');
+  else {
+    // First visit: default to CARTO Dark.
+    ui.base.value = 'p0';
+    ui.turl.value = PRESETS[0].url;
+    ui.tlight.checked = PRESETS[0].light;
+  }
+  fetch('/config.json')
+    .then((r) => r.json())
+    .then((c) => {
+      if (typeof c.defaultKey !== 'string' || !c.defaultKey) return;
+      setDefaultKey(c.defaultKey);
+      syncBaseUI();
+      requestDraw();
+    })
+    .catch(() => {});
   ui.tlight.checked = prefs.get('tileLight') === '1';
 
   const saveLight = () => prefs.set('tileLight', ui.tlight.checked ? '1' : '');
