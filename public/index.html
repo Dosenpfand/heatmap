@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Strava Heatmap</title>
+<style>
+:root{--bg:#0b0d12;--panel:#12151c;--line:#232836;--fg:#e6e8ee;--dim:#8b92a5;--acc:#ff6a1a}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+#app{display:flex;height:100%}
+#side{width:320px;flex:none;background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:16px}
+#stage{flex:1;position:relative;min-width:0}
+canvas#view{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+h1{font-size:16px;margin:0 0 2px;letter-spacing:.04em}h1 b{color:var(--acc)}
+.sub{color:var(--dim);margin-bottom:14px}
+h2{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);margin:18px 0 8px;border-top:1px solid var(--line);padding-top:14px}
+label.row{white-space:nowrap;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0}
+label.row span.v{color:var(--dim);width:34px;flex:none;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-width:0;width:100px;accent-color:var(--acc)}
+select,input[type=text]{background:#1a1e29;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 7px;font:inherit;width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:1px solid var(--line);background:#1a1e29;color:var(--dim);border-radius:99px;padding:3px 9px;cursor:pointer;user-select:none;font-size:12px}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#111;font-weight:600}
+button{background:#1a1e29;color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 11px;font:inherit;cursor:pointer}
+button:hover{border-color:#3a4258}button.p{background:var(--acc);color:#111;border-color:var(--acc);font-weight:700}
+button.on{border-color:var(--acc);color:var(--acc)}button:disabled{opacity:.4;cursor:default}
+.btns{display:flex;gap:6px;margin:6px 0}.btns button{flex:1}
+#status{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,'DejaVu Sans Mono',monospace;white-space:pre-wrap;color:var(--dim);font-size:12px;margin-top:8px;min-height:1.4em}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--dim);background:var(--bg);z-index:5}
+.cm{height:12px;border-radius:4px;margin:4px 0 8px;border:1px solid var(--line)}
+#upstat,#loadmsg{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,'DejaVu Sans Mono',monospace;font-variant-numeric:tabular-nums}
+#upstat{white-space:pre-wrap;word-break:break-word}
+.hint{color:var(--dim);font-size:12px;margin:6px 0}
+</style></head><body>
+<div id="app">
+<aside id="side">
+  <h1>STRAVA <b>HEATMAP</b></h1>
+  <div class="sub" id="count">loading…</div>
+
+  <h2 style="margin-top:0;border:0;padding:0">Data</h2>
+  <div class="btns"><button id="upbtn">📂 Load Strava export (.zip)</button></div>
+  <input type="file" id="upfile" accept=".zip,application/zip" style="display:none">
+  <div class="hint">Need the file? <a href="https://www.strava.com/athlete/download_my_account" target="_blank" rel="noopener noreferrer" style="color:var(--acc)">Request your Strava export</a>.</div>
+  <div class="hint" id="upstat"></div>
+
+  <h2>Activities</h2>
+  <div class="chips" id="types"></div>
+  <div class="chips" id="years" style="margin-top:8px"></div>
+
+  <h2>Look</h2>
+  <label class="row">Colors<select id="cmap" style="width:150px"></select></label>
+  <div class="cm" id="cmprev"></div>
+  <label class="row">Line width<input type="range" id="width" min="0.4" max="6" step="0.1" value="1.3"><span class="v"></span></label>
+  <label class="row">Brightness<input type="range" id="bright" min="0.02" max="0.6" step="0.01" value="0.16"><span class="v"></span></label>
+  <label class="row">Glow<input type="range" id="glow" min="0" max="2" step="0.05" value="0.7"><span class="v"></span></label>
+  <label class="row">Glow radius<input type="range" id="grad" min="1" max="20" step="0.5" value="4"><span class="v"></span></label>
+  <label class="row">Light background<input type="checkbox" id="tlight"></label>
+  <label class="row">Basemap<select id="base" style="width:170px"></select></label>
+  <div id="tbox" style="display:none">
+    <input type="text" id="turl" placeholder="https://…/{z}/{x}/{y}{r}.png?key={key}">
+    <label class="row" id="keyrow" style="display:none">API key<input type="text" id="tkey" placeholder="your key" style="width:190px"></label>
+    <div class="hint">Template placeholders: {z} {x} {y}, optional {s} {r} (retina) and {key}. You can also hard-code the key in the URL. The tile server must send CORS headers for export.</div>
+  </div>
+  <label class="row">Basemap dim<input type="range" id="dim" min="0" max="1" step="0.05" value="0.55"><span class="v"></span></label>
+
+  <h2>Export</h2>
+  <div class="btns"><button id="selbtn">▭ Select area</button><button id="clrbtn">Clear</button></div>
+  <div class="hint" id="selhint">Click “Select area”, then drag on the map. Drag inside to move, handles to resize. Hold Space to pan.</div>
+  <label class="row">Aspect<select id="ratio" style="width:150px">
+    <option value="0">Free</option><option value="1">1 : 1</option><option value="0.8">4 : 5</option>
+    <option value="1.5">3 : 2</option><option value="0.6667">2 : 3</option><option value="1.3333">4 : 3</option><option value="1.7778">16 : 9</option>
+    <option value="0.7071">A-series portrait</option><option value="1.4142">A-series landscape</option></select></label>
+  <label class="row">Long side<select id="px" style="width:150px">
+    <option>2000</option><option>4000</option><option selected>6000</option><option>8000</option><option>10000</option><option>12000</option></select></label>
+  <label class="row" title="Multiplies line width and glow radius in the export only. Lower = thinner, finer lines.">Export line scale<input type="range" id="exscale" min="0.1" max="2" step="0.05" value="0.4"><span class="v"></span></label>
+  <label class="row">Title<input type="text" id="title" placeholder="optional"></label>
+  <label class="row">Subtitle<input type="text" id="subtitle" placeholder="optional"></label>
+  <label class="row">Include tiles<input type="checkbox" id="exbase" checked></label>
+  <div class="btns"><button class="p" id="exbtn" disabled>Export PNG</button></div>
+  <h2>Animation</h2>
+  <div class="hint">Places activities one after another in chronological order, using the selected area (or the current view), basemap, colors and title above.</div>
+  <label class="row">Duration<input type="range" id="dur" min="5" max="120" step="1" value="20"><input type="number" id="durn" min="1" max="1800" step="1" value="20" style="width:64px;flex:none"><span style="color:var(--dim)">s</span></label>
+  <label class="row">Frame rate<select id="fps" style="width:150px"><option>24</option><option selected>30</option><option>60</option></select></label>
+  <label class="row">Video long side<select id="vpx" style="width:150px"><option>1280</option><option selected>1920</option><option>2560</option><option>3840</option></select></label>
+  <label class="row">Date &amp; counter<input type="checkbox" id="adate" checked></label>
+  <label class="row">Highlight newest<input type="checkbox" id="ahl" checked></label>
+  <div class="btns"><button class="p" id="vidbtn">Export video</button></div>
+  <div class="hint">Recorded in real time in your browser (MP4 in Chrome, otherwise WebM).</div>
+  <div id="status"></div>
+</aside>
+<main id="stage"><canvas id="view"></canvas><div id="loading"><div id="loadmsg">Loading activities…</div></div></main>
+</div>
+<script>addEventListener("DOMContentLoaded",()=>{})</script>
+<script src="app.js"></script>
+</body></html>
