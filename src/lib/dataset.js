@@ -3,8 +3,9 @@
  *   u32 metaLength | u32 padLength | meta JSON (utf-8) | padding | Int32 lon/lat pairs (degrees * 1e6)
  * `padding` aligns the point array to 4 bytes.
  *
- * Track tuple: [typeIndex, year, pointOffset, pointCount, minX, minY, maxX, maxY, timestamp]
- * (bbox in degrees * 1e6, pointOffset counted in points, not ints).
+ * Track tuple: [typeIndex, year, pointOffset, pointCount, minX, minY, maxX, maxY, timestamp,
+ *   distanceM, elevationGainM, movingTimeS, firstOfActivity]
+ * (the last four are optional in data written by older versions; bbox in degrees * 1e6, pointOffset counted in points, not ints).
  */
 export const COORD_SCALE = 1e6;
 

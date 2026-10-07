@@ -9,6 +9,10 @@ import { mercX, mercY } from './geo.js';
  * @property {number} o offset of the first point in `xs`/`ys`
  * @property {number} c point count
  * @property {number} ts start timestamp (seconds)
+ * @property {number} n 1 if this is the first track of its activity (the one carrying d/g/s)
+ * @property {number} d distance of the whole activity in meters (0 in data imported by older versions)
+ * @property {number} g elevation gain in meters
+ * @property {number} s moving time in seconds
  * @property {number} x0 bounding box, x0 < x1, y0 < y1
  * @property {number} x1
  * @property {number} y0
@@ -33,12 +37,16 @@ export function loadTracks(/** @type {ArrayBuffer} */ buf) {
     xs[i] = mercX(pts[2 * i] / COORD_SCALE);
     ys[i] = mercY(pts[2 * i + 1] / COORD_SCALE);
   }
-  const tracks = meta.tracks.map(([t, y, o, c, x0, y0, x1, y1, ts]) => ({
+  const tracks = meta.tracks.map(([t, y, o, c, x0, y0, x1, y1, ts, d = 0, g = 0, s = 0, n = 1]) => ({
     t,
     y,
     o,
     c,
     ts,
+    n,
+    d,
+    g,
+    s,
     // y flips under the projection, so the min/max latitudes swap
     x0: mercX(x0 / COORD_SCALE),
     x1: mercX(x1 / COORD_SCALE),

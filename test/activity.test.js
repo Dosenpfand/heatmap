@@ -31,7 +31,8 @@ test('parseGpx extracts type, time and points', () => {
   assert.equal(a.type, 'running');
   assert.equal(a.year, 2021);
   assert.equal(a.ts, Date.UTC(2021, 4, 4, 10) / 1000);
-  assert.deepEqual(a.segs, [{ lon: [1.5, 1.6], lat: [50, 50.1] }]);
+  assert.deepEqual(a.segs[0].lon, [1.5, 1.6]);
+  assert.deepEqual(a.segs[0].lat, [50, 50.1]);
 });
 
 test('parseGpx handles negative coordinates and multiple segments', () => {
@@ -45,4 +46,16 @@ test('parseGpx handles negative coordinates and multiple segments', () => {
 test('parseGpx tolerates missing metadata', () => {
   const a = parseGpx('<trkseg></trkseg>');
   assert.deepEqual(a, { type: undefined, year: 0, ts: 0, segs: [] });
+});
+
+test('parseGpx reads elevation and per-point time', () => {
+  const txt =
+    '<trkseg><trkpt lat="1" lon="2"><ele>10.5</ele><time>2020-01-01T00:00:00Z</time></trkpt>' +
+    '<trkpt lat="1.001" lon="2"><ele>12</ele><time>2020-01-01T00:00:10Z</time></trkpt><trkpt lat="1.002" lon="2"/></trkseg>';
+  const [seg] = parseGpx(txt).segs;
+  assert.equal(seg.lat.length, 3);
+  assert.deepEqual(seg.ele.slice(0, 2), [10.5, 12]);
+  assert.ok(Number.isNaN(seg.ele[2]));
+  assert.equal(seg.t[1] - seg.t[0], 10);
+  assert.ok(Number.isNaN(seg.t[2]));
 });

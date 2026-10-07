@@ -17,7 +17,8 @@ export function normType(raw) {
 }
 
 /**
- * @typedef {{lon: number[], lat: number[]}} Segment
+ * `ele` (meters) and `t` (seconds) are NaN where unknown.
+ * @typedef {{lon: number[], lat: number[], ele: number[], t: number[]}} Segment
  * @typedef {{type?: string, year: number, ts: number, segs: Segment[]}} Activity
  */
 
@@ -32,15 +33,15 @@ export function parseGpx(txt) {
   /** @type {Segment[]} */
   const segs = [];
   for (const seg of txt.split('<trkseg>').slice(1)) {
-    /** @type {number[]} */
-    const lon = [];
-    /** @type {number[]} */
-    const lat = [];
-    for (const m of seg.matchAll(/<trkpt lat="([-\d.]+)" lon="([-\d.]+)"/g)) {
-      lat.push(+m[1]);
-      lon.push(+m[2]);
+    /** @type {Segment} */
+    const s = { lon: [], lat: [], ele: [], t: [] };
+    for (const m of seg.matchAll(/<trkpt lat="([-\d.]+)" lon="([-\d.]+)"(?:[^>]*\/>|[^>]*>([\s\S]*?)<\/trkpt>)/g)) {
+      s.lat.push(+m[1]);
+      s.lon.push(+m[2]);
+      s.ele.push(m[3] ? parseFloat(m[3].match(/<ele>([^<]*)<\/ele>/)?.[1] ?? '') : NaN);
+      s.t.push(m[3] ? Date.parse(m[3].match(/<time>([^<]*)<\/time>/)?.[1] ?? '') / 1000 : NaN);
     }
-    if (lon.length > 1) segs.push({ lon, lat });
+    if (s.lon.length > 1) segs.push(s);
   }
   return { type, year, ts, segs };
 }
@@ -57,17 +58,23 @@ export function parseFit(buf) {
       const lon = [];
       /** @type {number[]} */
       const lat = [];
+      /** @type {number[]} */
+      const ele = [];
+      /** @type {number[]} */
+      const t = [];
       let ts = 0;
       for (const r of data.records ?? []) {
         if (r.position_lat == null || r.position_long == null) continue;
         lat.push(r.position_lat);
         lon.push(r.position_long);
+        ele.push(r.enhanced_altitude ?? r.altitude ?? NaN);
+        t.push(r.timestamp ? new Date(r.timestamp).getTime() / 1000 : NaN);
         if (!ts && r.timestamp) ts = new Date(r.timestamp).getTime() / 1000;
       }
       const sport = data.sessions?.[0]?.sport ?? data.sports?.[0]?.sport;
       const type = sport == null ? undefined : String(sport);
       const year = ts ? new Date(ts * 1000).getUTCFullYear() : 0;
-      resolve({ type, year, ts, segs: lon.length > 1 ? [{ lon, lat }] : [] });
+      resolve({ type, year, ts, segs: lon.length > 1 ? [{ lon, lat, ele, t }] : [] });
     });
   });
 }

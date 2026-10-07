@@ -27,6 +27,9 @@ test('build produces a dataset from a zip of GPX files', async () => {
   assert.equal(pts.length, (10 + 5) * 2);
   assert.equal(meta.tracks[1][1], 2022);
   assert.deepEqual(progress[0], [0, 4]);
+  const [, , , , , , , , , dist, gain, time, first] = meta.tracks[0];
+  assert.ok(dist > 100 && dist < 2000, `distance ${dist}`);
+  assert.deepEqual([gain, time, first], [0, 0, 1]);
 });
 
 test('build rejects archives without activities', async () => {

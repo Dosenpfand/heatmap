@@ -2,6 +2,7 @@
 import { parseFit, parseGpx, normType } from './lib/activity.js';
 import { encodeDataset, COORD_SCALE } from './lib/dataset.js';
 import { rdp } from './lib/geo.js';
+import { segmentStats } from './lib/stats.js';
 import { inflate, listZip, readEntry } from './lib/zip.js';
 
 /** @typedef {{onmessage: ((ev: MessageEvent) => void) | null, postMessage(msg: unknown, transfer?: Transferable[]): void}} WorkerScope */
@@ -45,14 +46,28 @@ export async function build(file, progress = () => {}) {
         const name = normType(act.type);
         let ti = types.indexOf(name);
         if (ti < 0) ti = types.push(name) - 1;
-        for (const { lon, lat } of act.segs) {
+        let first = 1; // distance/elevation/time of an activity are stored on its first track
+        const sum = { dist: 0, gain: 0, time: 0 };
+        /** @type {number[][]} */
+        const mine = [];
+        for (const { lon, lat, ele, t } of act.segs) {
           const idx = rdp(lon, lat);
           if (idx.length < 2) continue;
           const xs = idx.map((i) => Math.round(lon[i] * COORD_SCALE));
           const ys = idx.map((i) => Math.round(lat[i] * COORD_SCALE));
           const offset = pts.length / 2;
           xs.forEach((x, k) => pts.push(x, ys[k]));
-          tracks.push([ti, act.year, offset, idx.length, min(xs), min(ys), max(xs), max(ys), Math.round(act.ts)]);
+          const st = segmentStats(lon, lat, ele, t);
+          sum.dist += st.dist;
+          sum.gain += st.gain;
+          sum.time += st.time;
+          mine.push([ti, act.year, offset, idx.length, min(xs), min(ys), max(xs), max(ys), Math.round(act.ts)]);
+        }
+        for (const tr of mine) {
+          tracks.push(
+            first ? [...tr, Math.round(sum.dist), Math.round(sum.gain), Math.round(sum.time), 1] : [...tr, 0, 0, 0, 0],
+          );
+          first = 0;
         }
       }
     } catch (err) {

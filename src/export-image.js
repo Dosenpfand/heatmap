@@ -1,6 +1,7 @@
 import { ui, setStatus } from './dom.js';
-import { create2d, download, drawAttribution, drawTitle, sleep } from './export-common.js';
+import { create2d, download, drawAttribution, drawStats, drawTitle, sleep } from './export-common.js';
 import { renderHeat } from './heat.js';
+import { sumStats } from './lib/stats.js';
 import { tilesForView } from './lib/tiles.js';
 import { activeBase, background, exportHeatOptions, exportRegion, exportSize } from './settings.js';
 import { scaleOf, state, visibleTracks } from './state.js';
@@ -42,6 +43,7 @@ async function exportPng() {
     }
     g.drawImage(heat, 0, 0);
     heat.width = heat.height = 1; // release the large bitmap
+    if (ui.showstats.checked) drawStats(g, PW, PH, sumStats(visibleTracks()));
     drawTitle(g, PW, PH);
     if (useBase) drawAttribution(g, base, PW, PH);
     setStatus('Encoding PNG…');

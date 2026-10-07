@@ -1,7 +1,8 @@
 import { ui, setStatus } from './dom.js';
-import { create2d, download, drawAttribution, drawTitle, sleep } from './export-common.js';
+import { create2d, download, drawAttribution, drawStats, drawTitle, sleep } from './export-common.js';
 import { applyGlow, beginAccumulation, colorize, strokeTrack, worldMargin } from './heat.js';
 import { inRect } from './lib/tracks.js';
+import { sumStats, timeline } from './lib/stats.js';
 import { tilesForView } from './lib/tiles.js';
 import { activeBase, background, exportHeatOptions, isLight } from './settings.js';
 import { scaleOf, state, visibleTracks } from './state.js';
@@ -74,6 +75,12 @@ async function exportVideo() {
     .sort((a, b) => a.ts - b.ts);
   if (!tracks.length) return setStatus('No visible activities in this area.');
 
+  // running totals of everything visible (not just this region), growing as the animation advances
+  const allVisible = visibleTracks().sort((a, b) => a.ts - b.ts);
+  const showStats = ui.showstats.checked;
+  const totals = sumStats(allVisible);
+  const statsAt = timeline(allVisible);
+
   // static background (+ tiles)
   const { canvas: bg, g: bgc } = create2d(PW, PH);
   bgc.fillStyle = background();
@@ -127,6 +134,7 @@ async function exportVideo() {
         strokeTrack(g, state.data, tracks[i], cam);
       }
     }
+    if (showStats && drawn) drawStats(g, PW, PH, statsAt(tracks[drawn - 1].ts), { ref: totals });
     drawTitle(g, PW, PH);
     if (useBase) drawAttribution(g, base, PW, PH);
     if (showDate && drawn) drawDateCounter(g, PW, PH, tracks[drawn - 1].ts, drawn, tracks.length);

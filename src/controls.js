@@ -3,7 +3,7 @@ import { CMAPS, cmapGradient, makeLUT } from './lib/colormap.js';
 import { PRESETS } from './lib/tiles.js';
 import { requestDraw, resize, scheduleRender } from './map.js';
 import { hasDefaultKey, setDefaultKey, tileTemplate } from './settings.js';
-import { isVisible, state } from './state.js';
+import { state, updateStats } from './state.js';
 
 const DEFAULT_CMAP = 'Inferno fire';
 
@@ -54,7 +54,9 @@ function bindRange(/** @type {HTMLInputElement} */ el) {
 /** Updates the activity count and re-renders after a filter change. */
 function onFilterChange() {
   const { tracks } = state.data;
-  ui.count.textContent = `${tracks.filter(isVisible).length} of ${tracks.length} activities`;
+  updateStats();
+  const total = tracks.filter((t) => t.n).length;
+  ui.count.textContent = `${state.stats.count} of ${total} activities`;
   scheduleRender(0);
 }
 
@@ -156,6 +158,11 @@ function setupBasemap() {
   ui.tkey.addEventListener('input', () => {
     prefs.set('tileKey', ui.tkey.value);
     syncBaseUI();
+    requestDraw();
+  });
+  ui.showstats.checked = prefs.get('showStats') !== '0';
+  ui.showstats.addEventListener('change', () => {
+    prefs.set('showStats', ui.showstats.checked ? '1' : '0');
     requestDraw();
   });
   ui.tlight.addEventListener('change', () => {

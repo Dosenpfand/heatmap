@@ -37,6 +37,7 @@ export const ui = {
   glow: input('glow'),
   grad: input('grad'),
   tlight: input('tlight'),
+  showstats: input('showstats'),
   base: select('base'),
   tbox: div('tbox'),
   turl: input('turl'),

@@ -1,3 +1,4 @@
+import { sumStats } from './lib/stats.js';
 import { loadTracks } from './lib/tracks.js';
 
 /** @typedef {import('./lib/selection.js').Rect} Rect */
@@ -14,6 +15,7 @@ import { loadTracks } from './lib/tracks.js';
  *   sel: Rect | null,
  *   mode: 'pan' | 'select',
  *   lut: Uint32Array,
+ *   stats: import('./lib/stats.js').Stats,
  * }}
  */
 export const state = {
@@ -25,6 +27,7 @@ export const state = {
   sel: null,
   mode: 'pan',
   lut: new Uint32Array(256),
+  stats: sumStats([]),
 };
 
 export function setData(/** @type {ArrayBuffer} */ buf) {
@@ -36,3 +39,5 @@ export const scaleOf = (/** @type {number} */ z) => 256 * 2 ** z;
 
 export const isVisible = (/** @type {Track} */ t) => state.shownTypes.has(t.t) && state.shownYears.has(t.y);
 export const visibleTracks = () => state.data.tracks.filter(isVisible);
+/** Recomputes the cached totals of the visible (filtered) activities. */
+export const updateStats = () => (state.stats = sumStats(visibleTracks()));
