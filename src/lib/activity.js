@@ -22,6 +22,40 @@ export function normType(raw) {
  * @typedef {{type?: string, year: number, ts: number, segs: Segment[]}} Activity
  */
 
+/** A recording gap longer than this (s) that also moved farther than GAP_DIST_M breaks the track. */
+const GAP_S = 60;
+const GAP_DIST_M = 100;
+
+/**
+ * Splits segments where the recorder was paused and resumed elsewhere, so no straight line is drawn across the gap.
+ * @param {Segment} s
+ * @returns {Segment[]}
+ */
+export function splitGaps(s) {
+  /** @type {Segment[]} */
+  const out = [];
+  let from = 0;
+  const cut = (/** @type {number} */ to) => {
+    if (to - from > 1)
+      out.push({
+        lon: s.lon.slice(from, to),
+        lat: s.lat.slice(from, to),
+        ele: s.ele.slice(from, to),
+        t: s.t.slice(from, to),
+      });
+    from = to;
+  };
+  for (let i = 1; i < s.lon.length; i++) {
+    const dt = s.t[i] - s.t[i - 1];
+    if (!(dt > GAP_S)) continue;
+    const dy = (s.lat[i] - s.lat[i - 1]) * 111320;
+    const dx = (s.lon[i] - s.lon[i - 1]) * 111320 * Math.cos((s.lat[i] * Math.PI) / 180);
+    if (Math.hypot(dx, dy) > GAP_DIST_M) cut(i);
+  }
+  cut(s.lon.length);
+  return out;
+}
+
 /**
  * @param {string} txt GPX document
  * @returns {Activity}
@@ -41,7 +75,7 @@ export function parseGpx(txt) {
       s.ele.push(m[3] ? parseFloat(m[3].match(/<ele>([^<]*)<\/ele>/)?.[1] ?? '') : NaN);
       s.t.push(m[3] ? Date.parse(m[3].match(/<time>([^<]*)<\/time>/)?.[1] ?? '') / 1000 : NaN);
     }
-    if (s.lon.length > 1) segs.push(s);
+    segs.push(...splitGaps(s));
   }
   return { type, year, ts, segs };
 }
@@ -74,7 +108,7 @@ export function parseFit(buf) {
       const sport = data.sessions?.[0]?.sport ?? data.sports?.[0]?.sport;
       const type = sport == null ? undefined : String(sport);
       const year = ts ? new Date(ts * 1000).getUTCFullYear() : 0;
-      resolve({ type, year, ts, segs: lon.length > 1 ? [{ lon, lat, ele, t }] : [] });
+      resolve({ type, year, ts, segs: splitGaps({ lon, lat, ele, t }) });
     });
   });
 }
