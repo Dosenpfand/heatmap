@@ -1,9 +1,9 @@
 import { ui } from './dom.js';
-import { drawAttribution, drawStats } from './export-common.js';
+import { drawStats } from './export-common.js';
 import { renderHeat } from './heat.js';
 import { fitRatio } from './lib/selection.js';
-import { tilesForView } from './lib/tiles.js';
-import { activeBase, background, exportSize, heatOptions } from './settings.js';
+import { attributionParts, tilesForView } from './lib/tiles.js';
+import { activeBase, background, exportSize, heatOptions, isLight } from './settings.js';
 import { scaleOf, state, visibleTracks } from './state.js';
 import { drawTiles, getTile } from './tile-cache.js';
 
@@ -67,6 +67,30 @@ function s2w(/** @type {number} */ x, /** @type {number} */ y) {
   return [(x - viewport.w / 2) / S + view.cx, (y - viewport.h / 2) / S + view.cy];
 }
 
+let attrKey = '';
+/** Shows the basemap attribution as HTML links over the canvas. */
+function updateAttribution(/** @type {string} */ base) {
+  const light = isLight();
+  const key = base + light;
+  if (key === attrKey) return;
+  attrKey = key;
+  const el = ui.attribution;
+  el.replaceChildren();
+  el.hidden = base === 'none';
+  el.classList.toggle('light', light);
+  if (base === 'none') return;
+  attributionParts(base).forEach((p, i) => {
+    if (i) el.append(' | ');
+    if (!p.href) return el.append(p.text);
+    const a = document.createElement('a');
+    a.href = p.href;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = p.text;
+    el.append(a);
+  });
+}
+
 function draw() {
   updateExportUI();
   const { w: W, h: H, dpr } = viewport;
@@ -93,7 +117,7 @@ function draw() {
     ctx.drawImage(heat.canvas, ox, oy, W * r, H * r);
   }
   if (ui.showstats.checked) drawStats(ctx, W, H, state.stats, { fs: Math.max(11, Math.min(15, W / 28)) });
-  if (base !== 'none') drawAttribution(ctx, base, W, H);
+  updateAttribution(base);
   drawSelection();
 }
 

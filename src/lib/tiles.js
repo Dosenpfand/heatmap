@@ -136,21 +136,32 @@ export function tilesForView(template, cx, cy, S, W, H, sharp) {
   return list;
 }
 
-/** Known tile providers by host suffix. */
-const PROVIDERS = [
-  ['basemaps.cartocdn.com', '© CARTO'],
-  ['stadiamaps.com', '© Stadia Maps © Stamen Design © OpenMapTiles'],
-  ['maptiler.com', '© MapTiler'],
-  ['thunderforest.com', '© Thunderforest'],
-  ['jawg.io', '© Jawg Maps'],
-  ['arcgisonline.com', 'Imagery © Esri, Maxar, Earthstar Geographics'],
-];
+/** Known tile providers by host suffix: [host, [text, href][]]. */
+const PROVIDERS = /** @type {[string, [string, string][]][]} */ ([
+  ['basemaps.cartocdn.com', [['© CARTO', 'https://carto.com/attributions']]],
+  [
+    'stadiamaps.com',
+    [
+      ['© Stadia Maps', 'https://stadiamaps.com/'],
+      ['© Stamen Design', 'https://stamen.com/'],
+      ['© OpenMapTiles', 'https://openmaptiles.org/'],
+    ],
+  ],
+  ['maptiler.com', [['© MapTiler', 'https://www.maptiler.com/copyright/']]],
+  ['thunderforest.com', [['© Thunderforest', 'https://www.thunderforest.com/']]],
+  ['jawg.io', [['© Jawg Maps', 'https://www.jawg.io/']]],
+  [
+    'arcgisonline.com',
+    [['Imagery © Esri, Maxar, Earthstar Geographics', 'https://www.esri.com/en-us/legal/copyright-trademarks']],
+  ],
+]);
 
 /**
- * Attribution text for a tile URL template: the provider (if known, else its host) plus OpenStreetMap.
+ * Attribution segments for a tile URL template: the provider (if known, else its host) plus OpenStreetMap.
  * @param {string} template
+ * @returns {{text: string, href?: string}[]}
  */
-export function attributionFor(template) {
+export function attributionParts(template) {
   let host = '';
   try {
     host = new URL(template.replace(/\{s\}/g, 'a')).hostname;
@@ -159,9 +170,19 @@ export function attributionFor(template) {
   }
   const known = PROVIDERS.find(([h]) => host === h || host.endsWith('.' + h));
   const isOsm = host === 'tile.openstreetmap.org' || host.endsWith('.openstreetmap.org');
-  const parts = [];
-  if (known) parts.push(known[1]);
-  else if (host && !isOsm) parts.push(`Tiles: ${host}`);
-  parts.push('© OpenStreetMap contributors');
-  return parts.join(' | ');
+  const parts = /** @type {{text: string, href?: string}[]} */ ([]);
+  if (known) for (const [text, href] of known[1]) parts.push({ text, href });
+  else if (host && !isOsm) parts.push({ text: `Tiles: ${host}` });
+  parts.push({ text: '© OpenStreetMap contributors', href: 'https://www.openstreetmap.org/copyright' });
+  return parts;
+}
+
+/**
+ * Attribution text for a tile URL template.
+ * @param {string} template
+ */
+export function attributionFor(template) {
+  return attributionParts(template)
+    .map((p) => p.text)
+    .join(' | ');
 }

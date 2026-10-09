@@ -18,6 +18,7 @@ const button = (/** @type {string} */ id) => get(id, HTMLButtonElement);
 
 export const ui = {
   view: get('view', HTMLCanvasElement),
+  attribution: div('attribution'),
   count: div('count'),
   status: div('status'),
   loading: div('loading'),

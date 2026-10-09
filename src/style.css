@@ -40,6 +40,24 @@ body {
   position: relative;
   min-width: 0;
 }
+#attribution {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 2px 6px;
+  font:
+    11px system-ui,
+    sans-serif;
+  color: #ddd;
+  background: rgba(0, 0, 0, 0.55);
+}
+#attribution.light {
+  color: #333;
+  background: rgba(255, 255, 255, 0.7);
+}
+#attribution a {
+  color: inherit;
+}
 canvas#view {
   position: absolute;
   inset: 0;
