@@ -21,7 +21,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "fit-file-parser": "^6.1.2"
+    "fit-file-parser": "^6.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
